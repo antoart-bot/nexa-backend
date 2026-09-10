@@ -1,20 +1,46 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(
+    process.env.GEMINI_API_KEY
+);
 
 module.exports = async (req, res) => {
+
+    // CORS
+    res.setHeader(
+        "Access-Control-Allow-Origin",
+        "https://antoart-bot.github.io"
+    );
+
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "POST, OPTIONS"
+    );
+
+    res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type"
+    );
+
+    // Verificação do navegador
+    if (req.method === "OPTIONS") {
+        return res.status(204).end();
+    }
+
+    // Só aceita POST
     if (req.method !== "POST") {
         return res.status(405).json({
-            erro: "Método não permitido"
+            erro: "Método não permitido."
         });
     }
 
     try {
+
         const { mensagem } = req.body;
 
-        if (!mensagem) {
+        if (!mensagem || !mensagem.trim()) {
             return res.status(400).json({
-                erro: "Mensagem não informada"
+                erro: "Mensagem não informada."
             });
         }
 
@@ -23,32 +49,54 @@ module.exports = async (req, res) => {
         });
 
         const prompt = `
-Você é a Nexa AI, assistente educativa do projeto NEXA - Saúde da Mulher.
+Você é a Nexa AI, assistente educativa
+do projeto NEXA - Saúde da Mulher.
 
-Seu objetivo é explicar assuntos de saúde de maneira simples,
-educativa, responsável e fácil de entender.
+Sua função é explicar informações de saúde
+de maneira simples, clara, educativa e responsável.
 
-Não faça diagnósticos.
-Não substitua profissionais de saúde.
-Quando uma situação precisar de avaliação profissional,
-recomende procurar um profissional de saúde.
+O NEXA aborda temas como:
+- saúde da mulher
+- endometriose
+- ISTs
+- anticoncepcionais
+- prevenção
+- cuidados com a saúde
 
-Pergunta da pessoa:
+Regras importantes:
+
+1. Não faça diagnósticos.
+2. Não diga que uma pessoa possui determinada doença.
+3. Não substitua profissionais de saúde.
+4. Explique conceitos de forma educativa.
+5. Quando uma pergunta envolver uma situação pessoal
+   que precise de avaliação, oriente a procurar
+   um profissional de saúde.
+6. Use linguagem simples, adequada para estudantes.
+7. Não invente informações.
+8. Seja respeitosa e objetiva.
+
+Pergunta do usuário:
+
 ${mensagem}
 `;
 
-        const result = await model.generateContent(prompt);
-        const resposta = result.response.text();
+        const resultado =
+            await model.generateContent(prompt);
+
+        const resposta =
+            resultado.response.text();
 
         return res.status(200).json({
-            resposta
+            resposta: resposta
         });
 
     } catch (erro) {
-        console.error(erro);
+
+        console.error("Erro Gemini:", erro);
 
         return res.status(500).json({
-            erro: "Não foi possível obter uma resposta."
+            erro: "Erro ao conversar com o Gemini."
         });
     }
 };
