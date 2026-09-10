@@ -7,10 +7,17 @@ const genAI = new GoogleGenerativeAI(
 module.exports = async (req, res) => {
 
     // CORS
-    res.setHeader(
-        "Access-Control-Allow-Origin",
-        "https://antoart-bot.github.io"
-    );
+    const allowedOrigins = [
+        "https://antoart-bot.github.io",
+        "http://127.0.0.1:5500",
+        "http://localhost:5500"
+    ];
+
+    const origin = req.headers.origin;
+
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+    }
 
     res.setHeader(
         "Access-Control-Allow-Methods",
