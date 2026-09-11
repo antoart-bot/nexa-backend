@@ -1,4 +1,3 @@
-git
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(
@@ -52,7 +51,6 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Modelo Gemini
         const model = genAI.getGenerativeModel({
             model: "gemini-3.6-flash"
         });
@@ -102,11 +100,10 @@ ${mensagem}
 
     } catch (erro) {
 
-        console.error("ERRO COMPLETO:", erro);
+        console.error("Erro Gemini:", erro);
 
         return res.status(500).json({
-            erro: erro.message || "Erro desconhecido",
-            detalhes: String(erro)
+            erro: "Erro ao conversar com o Gemini."
         });
     }
 };
